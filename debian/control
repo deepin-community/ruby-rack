@@ -1,0 +1,40 @@
+Source: ruby-rack
+Maintainer: Debian Ruby Team <pkg-ruby-extras-maintainers@lists.alioth.debian.org>
+Uploaders: Chris Lamb <lamby@debian.org>,
+           Lucas Nussbaum <lucas@debian.org>,
+           Youhei SASAKI <uwabami@gfd-dennou.org>,
+           Paul van Tilburg <paulvt@debian.org>,
+           Utkarsh Gupta <utkarsh@debian.org>
+Section: ruby
+Priority: optional
+Build-Depends: debhelper-compat (= 13),
+               gem2deb,
+               rake,
+               ruby-bacon,
+               ruby-concurrent,
+               ruby-dalli,
+               ruby-minitest-global-expectations,
+               ruby-webrick (>= 1.7~),
+               thin
+Standards-Version: 4.6.1
+Vcs-Browser: https://salsa.debian.org/ruby-team/ruby-rack
+Vcs-Git: https://salsa.debian.org/ruby-team/ruby-rack.git
+Homepage: https://rack.github.io/
+XS-Ruby-Versions: all
+Rules-Requires-Root: no
+
+Package: ruby-rack
+Architecture: all
+XB-Ruby-Versions: ${ruby:Versions}
+Depends: ruby:any | ruby-interpreter,
+         ${misc:Depends},
+         ${shlibs:Depends}
+Breaks: ruby-rack-oauth2 (<< 1.11)
+Description: modular Ruby webserver interface
+ Rack provides a minimal, modular and adaptable interface for developing
+ web applications in Ruby.  By wrapping HTTP requests and responses in
+ the simplest way possible, it unifies and distills the API for web
+ servers, web frameworks, and software in between (the so-called
+ middleware) into a single method call.
+ .
+ Also see http://rack.github.io/.

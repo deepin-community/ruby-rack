@@ -1,0 +1,20 @@
+#!/bin/sh
+
+exec 2>&1
+
+set -ex
+
+appdir=${AUTOPKGTEST_TMP:-/tmp}/app
+mkdir $appdir
+cd $appdir
+
+cat > config.ru <<EOF
+run(lambda { |request| [200, {'Content-Type' => 'text/html'}, ['Hello, world!']]})
+EOF
+
+rackup --pid smoke.pid --daemonize
+sleep 5
+
+curl -s http://localhost:9292/ | grep 'Hello, world'
+
+kill $(cat smoke.pid)

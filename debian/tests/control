@@ -1,0 +1,6 @@
+Tests: smoke-test
+Depends: @, curl, ruby-webrick
+
+Test-Command: gem2deb-test-runner
+Depends: @, gem2deb-test-runner, rake, ruby-bacon, thin, ruby-minitest-global-expectations, ruby-webrick
+Restrictions: allow-stderr

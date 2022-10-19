@@ -1,0 +1,87 @@
+From: Antonio Terceiro <terceiro@debian.org>
+Date: Sat, 27 Feb 2021 09:25:18 -0300
+Subject: Make tests pass on hosts that have no ipv4 connectivity
+
+This is a backport of the patch sent upstream.
+
+Forwarded: https://github.com/rack/rack/pull/1738
+---
+ test/spec_server.rb  | 8 ++++----
+ test/spec_thin.rb    | 4 ++--
+ test/spec_webrick.rb | 6 +++---
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+
+--- a/test/spec_server.rb
++++ b/test/spec_server.rb
+@@ -350,8 +350,8 @@
+       app: app,
+       environment: 'none',
+       pid: pidfile.path,
+-      Port: TCPServer.open('127.0.0.1', 0){|s| s.addr[1] },
+-      Host: '127.0.0.1',
++      Port: TCPServer.open('localhost', 0){|s| s.addr[1] },
++      Host: 'localhost',
+       Logger: WEBrick::Log.new(nil, WEBrick::BasicLog::WARN),
+       AccessLog: [],
+       daemonize: false,
+@@ -360,9 +360,9 @@
+     t = Thread.new { server.start { |s| Thread.current[:server] = s } }
+     t.join(0.01) until t[:server] && t[:server].status != :Stop
+     body = if URI.respond_to?(:open)
+-             URI.open("http://127.0.0.1:#{server.options[:Port]}/") { |f| f.read }
++             URI.open("http://localhost:#{server.options[:Port]}/") { |f| f.read }
+            else
+-             open("http://127.0.0.1:#{server.options[:Port]}/") { |f| f.read }
++             open("http://localhost:#{server.options[:Port]}/") { |f| f.read }
+            end
+     body.must_equal 'success'
+ 
+--- a/test/spec_thin.rb
++++ b/test/spec_thin.rb
+@@ -15,7 +15,7 @@
+     Thin::Logging.silent = true
+ 
+     @thread = Thread.new do
+-      Rack::Handler::Thin.run(@app, Host: @host = '127.0.0.1', Port: @port = 9204, tag: "tag") do |server|
++      Rack::Handler::Thin.run(@app, Host: @host = 'localhost', Port: @port = 9204, tag: "tag") do |server|
+         @server = server
+       end
+     end
+@@ -41,7 +41,7 @@
+     response["HTTP_VERSION"].must_equal "HTTP/1.1"
+     response["SERVER_PROTOCOL"].must_equal "HTTP/1.1"
+     response["SERVER_PORT"].must_equal "9204"
+-    response["SERVER_NAME"].must_equal "127.0.0.1"
++    response["SERVER_NAME"].must_equal "localhost"
+   end
+ 
+   it "have rack headers" do
+--- a/test/spec_webrick.rb
++++ b/test/spec_webrick.rb
+@@ -10,7 +10,7 @@
+   include TestRequest::Helpers
+ 
+   before do
+-  @server = WEBrick::HTTPServer.new(Host: @host = '127.0.0.1',
++  @server = WEBrick::HTTPServer.new(Host: @host = 'localhost',
+                                     Port: @port = 9202,
+                                     Logger: WEBrick::Log.new(nil, WEBrick::BasicLog::WARN),
+                                     AccessLog: [])
+@@ -45,7 +45,7 @@
+     response["HTTP_VERSION"].must_equal "HTTP/1.1"
+     response["SERVER_PROTOCOL"].must_equal "HTTP/1.1"
+     response["SERVER_PORT"].must_equal "9202"
+-    response["SERVER_NAME"].must_equal "127.0.0.1"
++    response["SERVER_NAME"].must_equal "localhost"
+   end
+ 
+   it "have rack headers" do
+@@ -124,7 +124,7 @@
+ 
+     t = Thread.new do
+       Rack::Handler::WEBrick.run(lambda {},
+-                                   Host: '127.0.0.1',
++                                   Host: 'localhost',
+                                    Port: 9210,
+                                    Logger: WEBrick::Log.new(nil, WEBrick::BasicLog::WARN),
+                                    AccessLog: []) { |server|
